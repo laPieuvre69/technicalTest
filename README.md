@@ -1,81 +1,68 @@
-Création des Modèles et Migrations : 
-php artisan make:model Administrateur -m
-php artisan make:model Profil -m
+# Backend API - Documentation
 
-Définition des migrations:
+## Description
 
-    public function up(): void
-    {
-        Schema::create('administrateurs', function (Blueprint $table) {
-            $table->id();
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->timestamps();
-        });
-    }
+API Laravel utilisant Sanctum pour l'authentification et la gestion des profils.
 
-   public function up(): void
-    {
-        Schema::create('profils', function (Blueprint $table) {
-            $table->id();
-            $table->string('nom');
-            $table->string('prénom');
-            $table->string('image');
-            $table->enum('statut', ['inactif', 'en attente', 'actif']);
-            $table->timestamps();
-        });
-    }
+## Configuration
 
-Création du contrôleur ProfilController :
+### Modèles et Migrations
 
-php artisan make:controller ProfilController --api
+Deux modèles principaux sont utilisés :
 
-use App\Http\Controllers\ProfilController;
+- Administrateur (email, password)
+- Profil (nom, prénom, image, statut)
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/profils', [ProfilController::class, 'store']);
-    Route::put('/profils/{id}', [ProfilController::class, 'update']);
-    Route::delete('/profils/{id}', [ProfilController::class, 'destroy']);
-});
+### Routes API
 
-Route::get('/profils', [ProfilController::class, 'index']);
+Routes protégées (nécessitent authentification) :
 
-Route::post('/sanctum/token', function (Request $request) {
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
+- POST /profils - Création d'un profil
+- PUT /profils/{id} - Mise à jour d'un profil
+- DELETE /profils/{id} - Suppression d'un profil
 
-    $admin = \App\Models\Administrateur::where('email', $request->email)->first();
-    if (! $admin || ! \Hash::check($request->password, $admin->password)) {
-        return response()->json(['message' => 'Invalid credentials'], 401);
-    }
+Routes publiques :
 
-    $token = $admin->createToken('Admin Access')->plainTextToken;
+- GET /profils - Liste des profils
+- POST /sanctum/token - Authentification
 
-    return response()->json(['token' => $token]);
-});
+## Authentification
 
-utislisation de sanctum pour la gestion de l'identification et la protection des routes par token.
+L'authentification utilise Laravel Sanctum avec des tokens Bearer.
 
-CRUD des profils dans ProfilController. 
+### Exemple d'utilisation
 
-Création de: 
-App\Http\Requests\StoreProfilRequest et 
-App\Http\Requests\UpdateProfilRequest afin de valider les données.
+1. Obtention du token :
 
-création d un seeder pour avoir un admin.
+```bash
+POST http://127.0.0.1:8001/api/sanctum/token
+Body: {
+    "email": "admin@example.fr",
+    "password": "password"
+}
+```
 
-Via postman:
-POST http://127.0.0.1:8001/api/sanctum/token?email=admin@example.fr&password=password
-résultat: MY_SECRET_TOKEN
+1. Utilisation du token :
 
-POST http://127.0.0.1:8001/api/profils
-(ajouter Authorization type Bearer Token:MY_SECRET_TOKEN)
-résultat: création d'un profil avec la data souhaitée.
+Ajouter dans les headers : Authorization: Bearer MY_SECRET_TOKEN
 
-Pareil pour le update et destroy.
+## Validation
 
-Utilisation de l'IA pour génerer les cruds et les validators afin de gagner du temps sur des actions basiques.
+La validation des données est gérée via des Request classes dédiées :
 
-Temps total : 2h
+- StoreProfilRequest
+- UpdateProfilRequest
+
+## Seeding
+
+Un seeder est disponible pour créer un compte administrateur initial.
+
+## Temps de développement
+
+Temps total de mise en place : 2 heures
+
+## Notes techniques
+
+- Utilisation de l'IA pour la génération des CRUD basiques
+- Architecture RESTful
+- Sécurisation des routes via middleware Sanctum

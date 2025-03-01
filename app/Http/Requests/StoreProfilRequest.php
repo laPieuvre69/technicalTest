@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Validation\ValidationException;
 
 class StoreProfilRequest extends FormRequest
 {
@@ -27,5 +29,20 @@ class StoreProfilRequest extends FormRequest
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'statut' => 'required|in:inactif,en attente,actif',
         ];
+    }
+
+    /**
+     * Handle a failed validation attempt.
+     *
+     * @param  \Illuminate\Contracts\Validation\Validator  $validator
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function failedValidation(Validator $validator)
+    {
+        $errors = $validator->errors()->all();
+        throw new ValidationException($validator, response()->json([
+            'message' => 'Validation failed',
+            'errors' => $errors
+        ], 422));
     }
 }

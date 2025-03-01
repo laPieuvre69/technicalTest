@@ -2,22 +2,20 @@
 
 namespace Database\Factories;
 
+use App\Models\Profil;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Profil>
- */
 class ProfilFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
+    protected $model = Profil::class;
+
+    public function definition()
     {
         return [
-            //
+            'nom' => $this->faker->name,
+            'prénom' => $this->faker->firstName,
+            'image' => $this->faker->imageUrl,
+            'statut' => 'actif',
         ];
     }
 }

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class Administrateur extends Authenticatable
 {
     use HasApiTokens;
+    use HasFactory;
 
     protected $table = 'administrateurs';
 
